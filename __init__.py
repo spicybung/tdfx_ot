@@ -88,8 +88,8 @@ _classes = [
     gui.EXPORT_OT_col,
     gui.MATERIAL_PT_dffMaterials,
     gui.OBJECT_PT_dffObjects,
-    OBJECT_OT_join_similar_named_meshes,  # Add the new operator class
-    OBJECT_PT_join_similar_meshes_panel,  # Add the new panel class
+    gui.OBJECT_OT_join_similar_named_meshes,
+    gui.OBJECT_PT_join_similar_meshes_panel, 
     gui.DFFMaterialProps,
     gui.DFFObjectProps,
     gui.MapImportPanel,
@@ -105,8 +105,7 @@ _classes = [
     gui.SAEFFECTS_OT_CreateLightsFromOmni,
     gui.SAEFFECTS_OT_Import2dfx,
     gui.ExportToIPLOperator,
-    gui.MapExportPanel,
-    gui.IMPORT_OT_ifp  # Ensure the IFP class is included
+    gui.MapExportPanel
 ]
 
 # Register and unregister functions
