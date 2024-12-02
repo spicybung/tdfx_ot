@@ -1,0 +1,66 @@
+import bpy
+import struct
+from bpy_extras.io_utils import ImportHelper
+from bpy.types import Operator
+
+
+class SearchBytesInDFF(Operator, ImportHelper):
+    bl_idname = "import_test.search_bytes_dff_length"
+    bl_label = "Search Byte Sequence in DFF File (Dynamic Length)"
+
+    filename_ext = ".dff"
+    filter_glob: bpy.props.StringProperty(default="*.dff", options={'HIDDEN'})
+
+    def execute(self, context):
+        search_for_dynamic_section(self.filepath, "F8 F2 53 02")  # Test
+        return {'FINISHED'}
+
+
+def search_for_dynamic_section(filepath, target_bytes):
+    target_bytes = bytes.fromhex(target_bytes.replace(" ", ""))  # Convert hex string to bytes
+    print(f"Searching for bytes: {target_bytes.hex()} in {filepath}")
+
+    try:
+        with open(filepath, 'rb') as f:
+            data = f.read()  # Read the entire file into memory
+            offset = data.find(target_bytes)  # Search for the byte sequence
+
+            if offset != -1:
+                print(f"Found target bytes at offset: {offset} (hex: {hex(offset)})")
+
+
+                f.seek(offset + len(target_bytes))
+
+                section_length_data = f.read(4)
+                if len(section_length_data) != 4:
+                    print("Error: Could not read section length.")
+                    return
+
+                section_length = struct.unpack('<I', section_length_data)[0]
+                print(f"Section Length: {section_length} bytes")
+
+                # Read the section data based on the length
+                section_data = f.read(section_length)
+                print(f"Section Data (length={len(section_data)}): {section_data.hex()}")
+            else:
+                print("Target bytes not found in the file.")
+    except Exception as e:
+        print(f"Error reading file: {e}")
+
+
+def menu_func_import(self, context):
+    self.layout.operator(SearchBytesInDFF.bl_idname, text="Search Byte Sequence in DFF File (Dynamic Length)")
+
+
+def register():
+    bpy.utils.register_class(SearchBytesInDFF)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
+
+
+def unregister():
+    bpy.utils.unregister_class(SearchBytesInDFF)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
+
+
+if __name__ == "__main__":
+    register()
